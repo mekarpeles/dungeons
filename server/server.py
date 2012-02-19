@@ -2,7 +2,8 @@ import datetime
 import random
 from twisted.internet.protocol import Factory, Protocol
 from twisted.protocols.basic import LineReceiver
-from twisted.internet import reactor
+from utils.util import punctuate
+from utils.util import sentence_type
    
 class Repl(LineReceiver):
 
@@ -60,7 +61,11 @@ class Repl(LineReceiver):
         self.preprocess(line)
 
     def preprocess(self, msg):
-        op, rest = msg.split(" ", 1)
+        op, rest = None, None
+        try:
+            op, rest = msg.split(" ", 1)            
+        except:
+            op = msg.split(" ")[0]
         if op in self.OPERANDS:
             self.OPERANDS[op](self, rest)
         else:
@@ -75,13 +80,14 @@ class Repl(LineReceiver):
         pass
 
     def say(self, msg):        
-        for name, protocol in self.characters.iteritems():
-            #if protocol != self:
-            self.send('%s says, "%s"' % (self.character, msg),
+        for name, protocol in self.characters.iteritems():            
+            print sentence_type(msg)
+            self.send('%s %s, "%s"' % (self.character, sentence_type(msg), punctuate(msg)),
                       protocol=protocol)
     
-    def emote(self, emotion):
-        self.send()
+    def emote(self, emotion):        
+        self.send("%s %s" % (self.character,
+                             punctuate(emotion)), protocol=self)
 
     def login(self):
         return "Hello!"
@@ -94,5 +100,3 @@ class ReplFactory(Factory):
     def buildProtocol(self, addr):
         return Repl(self.characters)
 
-reactor.listenTCP(1337, ReplFactory())
-reactor.run()

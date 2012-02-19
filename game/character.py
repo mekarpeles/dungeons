@@ -7,11 +7,6 @@ class Inventory(object):
         
         pass
 
-class Skill(object):
-
-    def __init__(self):
-        pass
-
 class Character(object):
     
     def __init__(self):
