@@ -1,0 +1,117 @@
+import datetime
+import random
+from twisted.internet.protocol import Factory, Protocol
+from twisted.protocols.basic import LineReceiver
+from twisted.internet import reactor
+
+class Item(object):
+    
+    def __init__(self):
+        pass
+
+class Inventory(object):
+    
+    def __init__(self):
+        pass
+
+class Character(object):
+    
+    def __init__(self):
+        self.inventory = Inventory()
+        pass
+
+    
+
+class Repl(LineReceiver):
+
+    OPERANDS = {"quit": self.transport.loseConnection,
+                "say": self.say,
+                "emote": self.emote,
+                }
+
+    SENSES = {"look": 0,
+              "smell": 0,
+              "listen": 0,
+              "taste": 0,
+              "feel": 0,
+              }
+
+    FIGHT = {"kick": 0,
+             "punch": 0,
+             "slap": 0,
+             "headbutt": 0,
+             "trip": 0,             
+             "bite": 0,
+             "pinch": 0,
+             "jimmytap": 0,
+             }
+
+    EMOTES = {"laugh": "%s laughs %s",
+              "smile": "%s smiles %s",
+              "glare": "%s glares %s",
+              }
+
+    def __init__(self, users):
+        self.users = users
+        self.name = None
+
+    def connectionMade(self):
+        self.send("Please choose a username:")
+
+    def connectionLost(self, reason):
+        if self.users.has_key(self.name):
+            del self.users[self.name]
+        
+    def lineReceived(self, line):
+        # If no name is set
+        if not self.name:
+            # if the line entered isn't a taken name
+            if not self.users.has_key(line):
+                self.name = line
+                self.users[line] = self
+                return self.send("You are now known as %s" % line)
+            else:
+                return self.send("Name taken, please choose another name. The following names are also taken: \n%s" % ", ".join(self.users))
+            
+        if line == "exit":
+            self.quit()
+        return self.say(line)
+
+    def quit(self):
+        
+
+    def preprocess(self, msg):
+        if msg.split()[0] in OPERATORS
+        
+        pass
+
+    def send(self, msg, protocol=None):
+        timestamp = datetime.datetime.now().ctime()
+        protocol = protocol if protocol else self
+        protocol.sendLine("[%s] %s" % (timestamp, msg))
+
+    def cmd(self, command):
+        pass
+
+    def say(self, msg):        
+        for name, protocol in self.users.iteritems():
+            #if protocol != self:
+            self.send('%s says, "%s"' % (self.name, msg),
+                      protocol=protocol)
+    
+    def emote(self, emotion):
+        pass
+
+    def login(self):
+        return "Hello!"
+
+class ReplFactory(Factory):
+    
+    def __init__(self):
+        self.users = {}
+
+    def buildProtocol(self, addr):
+        return Repl(self.users)
+
+reactor.listenTCP(1337, ReplFactory())
+reactor.run()
