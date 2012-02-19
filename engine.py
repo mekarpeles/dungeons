@@ -1,8 +1,15 @@
+import io
+import ConfigParser
+
 from twisted.internet import reactor
 from server.server import ReplFactory
 
+config = ConfigParser.ConfigParser()
+config.read('networking.cfg')
+PORT = int(config.get("telnet", "port"))
+
 def run():
-    reactor.listenTCP(1337, ReplFactory())
+    reactor.listenTCP(PORT, ReplFactory())
     reactor.run()
 
 run()
