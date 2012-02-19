@@ -5,7 +5,7 @@ from twisted.internet import reactor
 from server.server import ReplFactory
 
 config = ConfigParser.ConfigParser()
-config.read('networking.cfg')
+config.read('network.cfg')
 PORT = int(config.get("telnet", "port"))
 
 def run():
