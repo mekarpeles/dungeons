@@ -5,42 +5,13 @@ from twisted.protocols.basic import LineReceiver
 from utils.util import punctuate
 from utils.util import sentence_type
 from game import world
+import game.actions   
 from game.character import Character
-   
+
 class Repl(LineReceiver):
 
-    OPERANDS = {"quit": lambda self, **kwargs: self.transport.loseConnection(),
-                "say": lambda self, msg: self.say(msg),
-                "emote": lambda self, emotion: self.emote(emotion),
-                }
-
-    SENSES = {"look": 0,
-              "smell": 0,
-              "listen": 0,
-              "taste": 0,
-              "feel": 0,
-              "touch": 0,
-              }
-
-    ATTACKS = {"kick": 0,
-               "parry": 0,
-               "punch": 0,
-               "poke": 0,
-               "slap": 0,
-               "headbutt": 0,
-               "trip": 0,
-               "bite": 0,
-               "pinch": 0,
-               "jimmytap": 0,
-               }
-
-    EMOTES = {"laugh": "%s laughs %s",
-              "smile": "%s smiles %s",
-              "glare": "%s glares %s",
-              }
-
     def __init__(self, characters):
-        self.world = world.Map(20)
+        self.world = world.Map(1)
         self.characters = characters
         self.character = None
 
@@ -53,49 +24,47 @@ class Repl(LineReceiver):
                 del self.characters[self.character.name]
         
     def lineReceived(self, line):
+        return self.read(line)
+
+    def read(self, line):
         # If no name is set
         if not self.character:
             # if the line entered isn't a taken name
             if not self.characters.has_key(line):
                 self.character = Character(line)
                 self.characters[line] = self
-                return self.send("You are now known as %s" % line)
+                self.send("You are now known as %s" % line)
+                room = (self.character.get_room(self.world))
+                self.sendLine(room.name)
+                self.sendLine(room.description)
+                return
             else:
-                return self.send("Name taken, please choose another name. The following names are also taken: \n%s" % ", ".join(self.characters))
-        self.preprocess(line)
+                return self.send("Name taken, please choose another name. \
+The following names are also taken: \n%s" % ", ".join(self.characters))
+        self.evaluate(line)
 
-    def preprocess(self, msg):
+    def evaluate(self, msg):
         op, rest = None, None
-        try:
+        tokens = msg.split(" ")
+        num_tokens = len(tokens)
+        op = msg.split(" ")[0]
+        
+        if num_tokens > 1:
             op, rest = msg.split(" ", 1)            
-        except:
-            op = msg.split(" ")[0]
-        if op in self.OPERANDS:
-            self.OPERANDS[op](self, rest)
-        else:
-            pass
+
+        if op in game.actions.COMMANDS:
+            game.actions.COMMANDS[op](self, rest)
 
     def send(self, msg, protocol=None):
         timestamp = datetime.datetime.now().ctime()
         protocol = protocol if protocol else self
         protocol.sendLine("[%s] %s" % (timestamp, msg))
 
-    def cmd(self, command):
-        pass
-
-    def say(self, msg):        
-        for name, protocol in self.characters.iteritems():          
-            self.send('%s %s, "%s"' % (self.character.name,
-                                       sentence_type(msg),
-                                       punctuate(msg)),
-                      protocol=protocol)
-    
-    def emote(self, emotion):        
-        self.send("%s %s" % (self.character.name,
-                             punctuate(emotion)), protocol=self)
-
-    def login(self):
-        return "Hello!"
+    def broadcast(self, msg, protocol=None, send2self=True):
+        for name, protocol in self.characters.iteritems():
+            if not send2self and name == self.character.name:
+                continue
+            self.send(msg, protocol=protocol)
 
 class ReplFactory(Factory):
     

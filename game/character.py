@@ -18,6 +18,7 @@ class Character(object):
                  appearance=DEFAULT_APPEARANCE,
                  sex=DEFAULT_SEX, race=DEFAULT_RACE,
                  smell=DEFAULT_SMELL):
+        self.position = 0
         self.name = name
         self.appearance = appearance
         self.smell = smell
@@ -28,3 +29,10 @@ class Character(object):
         self.hp = 0
         self.sp = 0
         self.ep = 0
+
+    @classmethod
+    def is_character(cls, controller, name):
+        return name in controller.characters
+
+    def get_room(self, world):
+        return world.rooms[self.position]

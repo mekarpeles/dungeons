@@ -27,7 +27,7 @@ class Room(object):
                   "s", "sw", "w", "nw"]
     CARDINAL_DIRECTIONS = dict(zip(DIRECTIONS,range(len(DIRECTIONS))))
     DEFAULT_EXITS = dict(zip(DIRECTIONS,[None]*len(DIRECTIONS)))
-    DEFAULT_DESC = "This room smells like nothing"
+    DEFAULT_DESC = "The room looks bland."
     DEFAULT_SMELL = "This room smells like nothing"
     ALTITUDES = range(5) # TBD
     TERRAIN = range(5) # TBD
@@ -42,6 +42,7 @@ class Room(object):
         self.smell = smell
         self.occupants = {}
         self.items = []
+        self.name = "= Room %s =" % room_id
 
     def add_occupant(self, character):
         self.occupants[character.name] = character
@@ -56,7 +57,8 @@ class Room(object):
 class Map(object):
        
     def __init__(self, rooms=random.randint(5,20)):
-        self.generate_map(rooms=rooms)
+        self.rooms = {}
+        self.generate_map(rooms)
 
     def next(self, room, direction):
         """
@@ -64,12 +66,11 @@ class Map(object):
         """
         pass
 
-    def generate_map(self, rooms=20):
+    def generate_map(self, rooms):
         #rooms = nx.random_regular_graph(8, 20)
-        self.world = {}
-        room_id = rooms
-        room_exits = self.generate_exits(room_id)
-        self.world[room_id] = Room(room_id)
+        room_id = 0
+        #room_exits = self.generate_exits(room_id)
+        self.rooms[room_id] = Room(room_id)
         return self
 
     def generate_exits(self, rooms_remaining, possible_exits=len(Room.DIRECTIONS),
