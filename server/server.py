@@ -4,6 +4,8 @@ from twisted.internet.protocol import Factory, Protocol
 from twisted.protocols.basic import LineReceiver
 from utils.util import punctuate
 from utils.util import sentence_type
+from game import world
+from game.character import Character
    
 class Repl(LineReceiver):
 
@@ -38,6 +40,7 @@ class Repl(LineReceiver):
               }
 
     def __init__(self, characters):
+        self.world = world.Map(20)
         self.characters = characters
         self.character = None
 
@@ -45,15 +48,16 @@ class Repl(LineReceiver):
         self.send("Please choose a character name:")
 
     def connectionLost(self, reason):
-        if self.characters.has_key(self.character):
-            del self.characters[self.character]
+        if self.character and getattr(self.character, "name", None):
+            if self.characters.has_key(self.character.name):
+                del self.characters[self.character.name]
         
     def lineReceived(self, line):
         # If no name is set
         if not self.character:
             # if the line entered isn't a taken name
             if not self.characters.has_key(line):
-                self.character = line
+                self.character = Character(line)
                 self.characters[line] = self
                 return self.send("You are now known as %s" % line)
             else:
@@ -80,13 +84,14 @@ class Repl(LineReceiver):
         pass
 
     def say(self, msg):        
-        for name, protocol in self.characters.iteritems():            
-            print sentence_type(msg)
-            self.send('%s %s, "%s"' % (self.character, sentence_type(msg), punctuate(msg)),
+        for name, protocol in self.characters.iteritems():          
+            self.send('%s %s, "%s"' % (self.character.name,
+                                       sentence_type(msg),
+                                       punctuate(msg)),
                       protocol=protocol)
     
     def emote(self, emotion):        
-        self.send("%s %s" % (self.character,
+        self.send("%s %s" % (self.character.name,
                              punctuate(emotion)), protocol=self)
 
     def login(self):

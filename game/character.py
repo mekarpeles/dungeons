@@ -9,11 +9,22 @@ class Inventory(object):
 
 class Character(object):
     
-    def __init__(self):
+    DEFAULT_RACE = "human"
+    DEFAULT_SEX = "male"
+    DEFAULT_APPEARANCE = "bland appearance"
+    DEFAULT_SMELL = "smells like nothing"
+
+    def __init__(self, name, passwd_hash=None,
+                 appearance=DEFAULT_APPEARANCE,
+                 sex=DEFAULT_SEX, race=DEFAULT_RACE,
+                 smell=DEFAULT_SMELL):
+        self.name = name
+        self.appearance = appearance
+        self.smell = smell
+        self.race = race
         self.inventory = Inventory()
-        self.race = RACE
         self.level = 1
-        self.npc = False
+        self.encumberance = 0
         self.hp = 0
         self.sp = 0
         self.ep = 0
