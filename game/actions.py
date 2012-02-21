@@ -1,3 +1,4 @@
+import datetime
 from game.character import Character
 from utils.util import punctuate
 from utils.util import sentence_type
@@ -5,15 +6,33 @@ from utils.util import sentence_type
 COMMANDS = {"quit": lambda controller, **kwargs: controller.transport.loseConnection(),
             "say": lambda controller, msg: say(controller, msg),
             "emote": lambda controller, emotion: emote(controller, emotion),
-            "look": lambda controller, args: sense(controller, "look", args),
            }
 
-
-SENSES_METHOD = {"look": "description",
-                 "smell": "smell",
-                 "listen": "sound",
-                 "taste": "taste",
-                 "feel": "texture",
+SENSES_LAMBDA = lambda controller, op, args: sense(controller, op, args)
+SENSES_METHOD = {"look": {"property": "description",
+                          "broadcast": lambda character, obj, **kwargs: "%s's gaze wanders as %s looks at the %s." % (character.name,
+                                                                                                                      character.he_or_she(),
+                                                                                                                      obj.object_type),
+                          "callback": lambda character, obj, **kwargs: obj.description,
+                          },
+                 "smell": {"property": "smell",
+                           "broadcast": lambda character, obj, **kwargs: "%s sniffs the air around the %s." % (character.name,
+                                                                                                               obj.object_type),
+                           "callback": lambda character, obj, **kwargs: "You smell %s." % obj.smell,
+                           },
+                 "listen": {"property": "sound",
+                            "broadcast": lambda character, obj, **kwargs: "%s listens carefully for a moment." % (character.name),
+                            "callback": lambda character, obj, **kwargs: "You hear the %s" % obj.sound,
+                            },
+                 "taste": {"property": "taste",
+                           "broadcast": lambda character, obj, **kwargs: "%s tastes the %s." % (character.name, obj.object_type),
+                           "callback": lambda character, obj, **kwargs: "You taste %s." % obj.taste,
+                           },
+                 "feel": {"property": "texture",
+                          "broadcast": lambda character, obj, **kwargs: "%s feels around the %s." % (character.name,
+                                                                                                    obj.object_type),
+                          "callback": lambda character, obj, **kwargs: "You feel %s" % obj.texture,
+                          },
                  }
 
 ATTACKS = {"kick": 0,
@@ -34,9 +53,11 @@ EMOTES = {"laugh": "%s laughs %s",
           }
 
 def say(controller, msg):
-    controller.broadcast('%s %s, "%s"' % (controller.character.name,
-                                          sentence_type(msg),
-                                          punctuate(msg)),
+    timestamp = datetime.datetime.now().ctime()
+    controller.broadcast('[%s] %s %s, "%s"' % (timestamp,
+                                               controller.character.name,
+                                               sentence_type(msg),
+                                               punctuate(msg)),
                          protocol=controller)
         
 def emote(controller, emotion):
@@ -44,21 +65,22 @@ def emote(controller, emotion):
                                     punctuate(emotion)),
                          protocol=controller)
 
-def sense(controller, method, what):
-    try:
-        print("what: %s" % what)
-        if not what:
-            lookee = controller.character.get_room(controller.world)
-        #elif Character.is_character(controller, lookee):
-        controller.broadcast("%s %ss %s" % (controller.character.name,
-                                            method,
-                                            getattr(lookee, SENSE_METHOD[method],
-                                                    None)),
-                             protocol=controller)
-    except:
-        room = controller.character.get_room(controller.world)
-        controller.sendLine("You don't sense anything unusual. %s" % 
-                            (room.description))
+def sense(controller, method, what=None):
+    looker = controller.character
+    lookee = controller.character.get_room(controller.world)
+
+    if what:        
+        args = what.split()
+        #if Character.is_character(controller, lookee):
+
+    x = SENSES_METHOD[method]
+    controller.broadcast(x['broadcast'](looker, lookee), protocol=controller)
+    controller.send("\033[94m" + x['callback'](looker, lookee) + "\033[0m\n",
+                    protocol=controller)
+    #except:
+    #    room = controller.character.get_room(controller.world)
+    #    controller.sendLine("You don't sense anything unusual. %s" % 
+    #                        (room.description))
                                  
 
 

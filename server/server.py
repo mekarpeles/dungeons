@@ -1,4 +1,3 @@
-import datetime
 import random
 from twisted.internet.protocol import Factory, Protocol
 from twisted.protocols.basic import LineReceiver
@@ -34,9 +33,9 @@ class Repl(LineReceiver):
                 self.character = Character(line)
                 self.characters[line] = self
                 self.send("You are now known as %s" % line)
-                room = (self.character.get_room(self.world))
-                self.sendLine(room.name)
-                self.sendLine(room.description)
+                room = self.character.get_room(self.world)
+                self.sendLine("\n\033[95m" + room.name + "\033[0m")
+                self.sendLine(room.description + "\n")
                 return
             else:
                 return self.send("Name taken, please choose another name. \
@@ -55,10 +54,13 @@ The following names are also taken: \n%s" % ", ".join(self.characters))
         if op in game.actions.COMMANDS:
             game.actions.COMMANDS[op](self, rest)
 
-    def send(self, msg, protocol=None):
-        timestamp = datetime.datetime.now().ctime()
+        if op in game.actions.SENSES_METHOD.keys():
+            game.actions.SENSES_LAMBDA(self, op, rest)
+            
+
+    def send(self, msg, protocol=None):        
         protocol = protocol if protocol else self
-        protocol.sendLine("[%s] %s" % (timestamp, msg))
+        protocol.sendLine("%s" % msg)
 
     def broadcast(self, msg, protocol=None, send2self=True):
         for name, protocol in self.characters.iteritems():
