@@ -62,6 +62,10 @@ class Room(Entity):
         self.items = []
         self.name = "Room %s" % room_id
 
+    def get_exits(self):
+        xits = filter(lambda key: self.exits[key], self.exits.keys())
+        return xits if xits else None
+
     def add_occupant(self, character):
         self.occupants[character.name] = character
 

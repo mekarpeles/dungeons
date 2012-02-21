@@ -35,7 +35,9 @@ class Repl(LineReceiver):
                 self.send("You are now known as %s" % line)
                 room = self.character.get_room(self.world)
                 self.sendLine("\n\033[95m" + room.name + "\033[0m")
-                self.sendLine(room.description + "\n")
+                self.sendLine(room.description)
+                self.sendLine("\033[93moccupants:\033[0m %s" % ", ".join(self.characters))
+                self.sendLine("\033[93mexits:\033[0m %s\n" % self.character.get_room(self.world).get_exits())
                 return
             else:
                 return self.send("Name taken, please choose another name. \
