@@ -63,7 +63,7 @@ class Sentient(Entity):
         self.sp = 0
         self.ep = 0
 
-class Character(Sentient, Entity):
+class Character(Sentient):
     
     def __init__(self, name, passwd_hash=None, **sentient):
         super(Character, self).__init__()
