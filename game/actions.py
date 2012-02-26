@@ -6,6 +6,8 @@ from utils.util import sentence_type
 from configs.formatting import BLUE_TXT
 from configs.formatting import YELLOW_TXT
 from configs.formatting import PURPLE_TXT
+from configs.formatting import AQUAMARINE_TXT
+from configs.formatting import LIGHTBLUE_TXT
 
 COMMANDS = {"quit": lambda controller, **kwargs: controller.transport.loseConnection(),
             "say": lambda controller, msg: say(controller, msg),
@@ -72,8 +74,8 @@ def show_room(controller):
     room = controller.character.get_room(controller.world)
     controller.sendLine("\n" + BLUE_TXT(room.name))
     controller.sendLine(room.description)
-    controller.sendLine(YELLOW_TXT("occupants:") + " %s" % ", ".join(controller.characters))
-    controller.sendLine(YELLOW_TXT("exits:") + " %s" % controller.character.get_room(controller.world).get_exits())
+    controller.sendLine(YELLOW_TXT("occupants:") + " %s" % ", ".join([c.name for c in controller.world.occupants(controller)]))
+    controller.sendLine(LIGHTBLUE_TXT("exits:") + " %s" % controller.character.get_room(controller.world).get_exits())
 
 def say(controller, msg):
     timestamp = datetime.datetime.now().ctime()
@@ -88,8 +90,12 @@ def emote(controller, emotion):
                                     punctuate(emotion)),
                          protocol=controller)
 
-def move(controller, mover, what=None):
-    return show_room(controller)
+def move(controller, direction, what=None):
+    pos = controller.character.position
+    next = controller.world.next(pos, direction)
+    if next:
+        controller.character.position = next
+        return show_room(controller)    
 
 def sense(controller, method, what=None):
     method = SENSES_METHOD[method]

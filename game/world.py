@@ -46,7 +46,7 @@ class Room(Entity):
     ALTITUDES = range(5) # TBD
     TERRAIN = range(5) # TBD
     
-    def __init__(self, room_id, exits=DEFAULT_EXITS, desc=DEFAULT_DESC,
+    def __init__(self, room_id, exits={}, desc=DEFAULT_DESC,
                  terrain=0, texture=DEFAULT_TEXTURE, altitude=0, smell=DEFAULT_SMELL,
                  taste=DEFAULT_TASTE, sound=DEFAULT_SOUND):
         self.object_type = "room"
@@ -83,11 +83,19 @@ class Map(object):
         self.rooms = {}
         self.generate_map(rooms)
 
-    def next(self, room, direction):
+    def next(self, room_id, direction):
         """
         Returns the next room in the map
         """
-        pass
+        if room_id in self.rooms:
+            room = self.rooms[room_id]
+            if room.exits and direction in room.exits:
+                return room.exits[direction].room_id
+        return None
+
+    def occupants(self, controller):
+        protocols = controller.characters.values()
+        return [protocol.character for protocol in protocols if protocol.character.position == controller.character.position]
 
     def generate_map(self, rooms):
         """
@@ -101,7 +109,12 @@ class Map(object):
 
         # Create exits dict for each room
         for room_id in rs:
-            directions = self.generate_exits() # ["n", "e"]
+            # every time we make a connection/exit, the linked room should lead back to prev room
+
+            # generate_exits should ignore any existing exits for this room            
+            room = self.rooms[room_id]
+            directions = self.generate_exits(ignore_exits=room.exits) # ["n", "e"]
+
             open_rooms = [v for k,v in self.rooms.items() if not k == room_id]
             num_exits = len(directions)
             exits = dict(zip(directions, random.sample(open_rooms, num_exits)))
@@ -109,8 +122,10 @@ class Map(object):
 
         return self
             
-    def generate_exits(self, possible_exits=len(Room.DIRECTIONS), min_exits=1):
+    def generate_exits(self, directions=(Room.DIRECTIONS), min_exits=1, ignore_exits={}):
         """
+        NOTE: # Rooms must be greater than the number of exits - 8
+
         Determines the maximum number of exits, taking into
         consideration the number of rooms_remaining
 
@@ -121,5 +136,7 @@ class Map(object):
         ["n", "e", "s", "nw", "w"]
         """
         # Number of possible exits
+        directions = [d for d in directions if d not in ignore_exits.keys()]
+        possible_exits = len(directions) - 1
         room_exits = random.randint(min_exits, possible_exits)
-        return random.sample(Room.DIRECTIONS, room_exits)
+        return random.sample(directions, room_exits)

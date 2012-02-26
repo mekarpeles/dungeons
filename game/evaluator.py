@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import game.actions
+import game.world
 
 class Eval(object):
 
@@ -25,3 +26,6 @@ class Eval(object):
                 
             if op in game.actions.SENSES_METHOD.keys():
                 game.actions.SENSES_LAMBDA(controller, op, rest)
+
+            if op in game.world.Room.DIRECTIONS:
+                game.actions.move(controller, op)

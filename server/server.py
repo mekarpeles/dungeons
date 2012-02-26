@@ -53,5 +53,3 @@ class ReplFactory(Factory):
 
     def buildProtocol(self, addr):
         return Repl(self.characters, self.world)
-
-
