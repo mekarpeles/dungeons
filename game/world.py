@@ -25,13 +25,14 @@ class Room(Entity):
     6 * 2
     5 4 3
     """    
+    ENTRY_ID = 0
     DIRECTIONS = ["n", "ne", "e", "se",
                   "s", "sw", "w", "nw"]
     CARDINAL_DIRECTIONS = dict(zip(DIRECTIONS,range(len(DIRECTIONS))))
     DEFAULT_EXITS = dict(zip(DIRECTIONS,[None]*len(DIRECTIONS)))
     DEFAULT_DESC = "The cavern is pitch black; almost super naturally so. The darkness seems to swallow all light, making it difficult to navigate."
     DEFAULT_SMELL = random.choice(["a stench of what can only be a thousand infected and rotting corpses",
-                                  "the sweet smell of lilac"
+                                  "sweet lilac"
                                   ])
     DEFAULT_TASTE = random.choice(["salt in the air; there is not much moisture",
                                   "ozone and crisp air"
@@ -77,7 +78,7 @@ class Room(Entity):
         return Room(exits=random.sample(EXITS, range(8)))
 
 class Map(object):
-       
+
     def __init__(self, rooms=random.randint(5,20)):
         self.rooms = {}
         self.generate_map(rooms)
@@ -89,14 +90,26 @@ class Map(object):
         pass
 
     def generate_map(self, rooms):
-        #rooms = nx.random_regular_graph(8, 20)
-        room_id = 0
-        #room_exits = self.generate_exits(room_id)
-        self.rooms[room_id] = Room(room_id)
-        return self
+        """
+        Generate 'n' nodes, make 'e' edges
+        """
+        rs = range(rooms)
 
-    def generate_exits(self, rooms_remaining, possible_exits=len(Room.DIRECTIONS),
-                       min_exits=1):
+        # Create all the rooms and add them to the self.rooms dict        
+        for room_id in rs:
+            self.rooms[room_id] = Room(room_id)
+
+        # Create exits dict for each room
+        for room_id in rs:
+            directions = self.generate_exits() # ["n", "e"]
+            open_rooms = [v for k,v in self.rooms.items() if not k == room_id]
+            num_exits = len(directions)
+            exits = dict(zip(directions, random.sample(open_rooms, num_exits)))
+            self.rooms[room_id].exits = exits
+
+        return self
+            
+    def generate_exits(self, possible_exits=len(Room.DIRECTIONS), min_exits=1):
         """
         Determines the maximum number of exits, taking into
         consideration the number of rooms_remaining
@@ -108,5 +121,5 @@ class Map(object):
         ["n", "e", "s", "nw", "w"]
         """
         # Number of possible exits
-        room_exits = random.randint(min_exits, possible_exits) if rooms_remaining > possible_exits else rooms_remaining
+        room_exits = random.randint(min_exits, possible_exits)
         return random.sample(Room.DIRECTIONS, room_exits)

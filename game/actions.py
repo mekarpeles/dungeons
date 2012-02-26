@@ -3,10 +3,16 @@ from game.character import Character
 from utils.util import punctuate
 from utils.util import sentence_type
 
+from configs.formatting import BLUE_TXT
+from configs.formatting import YELLOW_TXT
+from configs.formatting import PURPLE_TXT
+
 COMMANDS = {"quit": lambda controller, **kwargs: controller.transport.loseConnection(),
             "say": lambda controller, msg: say(controller, msg),
             "emote": lambda controller, emotion: emote(controller, emotion),
+            "l": lambda controller, something, **kwargs: show_room(controller),
            }
+
 
 SENSES_LAMBDA = lambda controller, op, args: sense(controller, op, args)
 SENSES_METHOD = {"look": {"property": "description",
@@ -53,15 +59,21 @@ EMOTES = {"laugh": "%s laughs %s",
           }
 
 def login(controller, name):
-    controller.character = Character(name)
-    controller.characters[name] = controller
-    controller.send("You are now known as %s" % name)
+    # if the (line) character name entered isn't a taken name
+    if not controller.characters.has_key(name):
+        controller.character = Character(name)
+        controller.characters[name] = controller
+        controller.send("You are now known as %s" % name)
+    else:
+        return controller.send("Name taken, please choose another name. \
+The following names are also taken: \n%s" % ", ".join(controller.characters))
+
+def show_room(controller):
     room = controller.character.get_room(controller.world)
     controller.sendLine("\n" + BLUE_TXT(room.name))
     controller.sendLine(room.description)
-    controller.sendLine(YELLOW_TXT("occupants:") + " %s" % ", ".join(self.characters))
-    controller.sendLine(YELLOW_TXT("exits:") + " %s" % self.character.get_room(self.world).get_exits())
-
+    controller.sendLine(YELLOW_TXT("occupants:") + " %s" % ", ".join(controller.characters))
+    controller.sendLine(YELLOW_TXT("exits:") + " %s" % controller.character.get_room(controller.world).get_exits())
 
 def say(controller, msg):
     timestamp = datetime.datetime.now().ctime()
@@ -76,18 +88,20 @@ def emote(controller, emotion):
                                     punctuate(emotion)),
                          protocol=controller)
 
+def move(controller, mover, what=None):
+    return show_room(controller)
+
 def sense(controller, method, what=None):
-    looker = controller.character
-    lookee = controller.character.get_room(controller.world)
+    method = SENSES_METHOD[method]
+    senser = controller.character
+    obj = controller.character.get_room(controller.world)
 
     if what:        
         args = what.split()
-        #if Character.is_character(controller, lookee):
-
-    x = SENSES_METHOD[method]
-    controller.broadcast(x['broadcast'](looker, lookee), protocol=controller)
-    controller.send("\033[94m" + x['callback'](looker, lookee) + "\033[0m\n",
-                    protocol=controller)
+        #if Character.is_character(controller, obj):
+        
+    controller.broadcast(method['broadcast'](senser, obj), protocol=controller)
+    controller.send(PURPLE_TXT(method['callback'](senser, obj))+"\n", protocol=controller)
     #except:
     #    room = controller.character.get_room(controller.world)
     #    controller.sendLine("You don't sense anything unusual. %s" % 
