@@ -38,7 +38,7 @@ class Repl(LineReceiver):
                 room = self.character.get_room(self.world)
                 self.sendLine("\n" + BLUE_TXT(room.name))
                 self.sendLine(room.description)
-                self.sendLine(YELLOW_TXT("moccupants:") + "%s" % ", ".join(self.characters))
+                self.sendLine(YELLOW_TXT("occupants:") + " %s" % ", ".join(self.characters))
                 self.sendLine(YELLOW_TXT("exits:") + " %s" % self.character.get_room(self.world).get_exits())
                 return
             else:
