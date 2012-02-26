@@ -67,7 +67,7 @@ class Character(Sentient):
     
     def __init__(self, name, passwd_hash=None, **sentient):
         super(Character, self).__init__()
-        self.name = name
+        self.name = name.title()
         self.xp = 0
         self.skills = []
         self.guild = "immigrant"

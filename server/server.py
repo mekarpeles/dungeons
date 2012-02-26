@@ -3,6 +3,8 @@ from twisted.internet.protocol import Factory, Protocol
 from twisted.protocols.basic import LineReceiver
 from utils.util import punctuate
 from utils.util import sentence_type
+from configs.formatting import BLUE_TXT
+from configs.formatting import YELLOW_TXT
 from game import world
 import game.actions   
 from game.character import Character
@@ -34,10 +36,10 @@ class Repl(LineReceiver):
                 self.characters[line] = self
                 self.send("You are now known as %s" % line)
                 room = self.character.get_room(self.world)
-                self.sendLine("\n\033[95m" + room.name + "\033[0m")
+                self.sendLine("\n" + BLUE_TXT(room.name))
                 self.sendLine(room.description)
-                self.sendLine("\033[93moccupants:\033[0m %s" % ", ".join(self.characters))
-                self.sendLine("\033[93mexits:\033[0m %s\n" % self.character.get_room(self.world).get_exits())
+                self.sendLine(YELLOW_TXT("moccupants:") + "%s" % ", ".join(self.characters))
+                self.sendLine(YELLOW_TXT("exits:") + " %s" % self.character.get_room(self.world).get_exits())
                 return
             else:
                 return self.send("Name taken, please choose another name. \
