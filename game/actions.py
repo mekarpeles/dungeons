@@ -52,6 +52,17 @@ EMOTES = {"laugh": "%s laughs %s",
           "glare": "%s glares %s",
           }
 
+def login(controller, name):
+    controller.character = Character(name)
+    controller.characters[name] = controller
+    controller.send("You are now known as %s" % name)
+    room = controller.character.get_room(controller.world)
+    controller.sendLine("\n" + BLUE_TXT(room.name))
+    controller.sendLine(room.description)
+    controller.sendLine(YELLOW_TXT("occupants:") + " %s" % ", ".join(self.characters))
+    controller.sendLine(YELLOW_TXT("exits:") + " %s" % self.character.get_room(self.world).get_exits())
+
+
 def say(controller, msg):
     timestamp = datetime.datetime.now().ctime()
     controller.broadcast('[%s] %s %s, "%s"' % (timestamp,
