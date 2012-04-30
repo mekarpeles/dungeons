@@ -1,5 +1,6 @@
 import datetime
 from game.character import Character
+import game.world
 from utils.util import punctuate
 from utils.util import sentence_type
 
@@ -9,7 +10,7 @@ from configs.formatting import PURPLE_TXT
 from configs.formatting import AQUAMARINE_TXT
 from configs.formatting import LIGHTBLUE_TXT
 
-COMMANDS = {"quit": lambda controller, **kwargs: controller.transport.loseConnection(),
+COMMANDS = {"quit": lambda controller, opt, **kwargs: controller.transport.loseConnection(),
             "say": lambda controller, msg: say(controller, msg),
             "emote": lambda controller, emotion: emote(controller, emotion),
             "l": lambda controller, something, **kwargs: show_room(controller),
@@ -62,13 +63,13 @@ EMOTES = {"laugh": "%s laughs %s",
 
 def login(controller, name):
     # if the (line) character name entered isn't a taken name
-    if not controller.characters.has_key(name):
+    if not controller.players.has_key(name):
         controller.character = Character(name)
-        controller.characters[name] = controller
+        controller.players[name] = controller
         controller.send("You are now known as %s" % name)
     else:
         return controller.send("Name taken, please choose another name. \
-The following names are also taken: \n%s" % ", ".join(controller.characters))
+The following names are also taken: \n%s" % ", ".join(controller.players))
 
 def show_room(controller):
     room = controller.character.get_room(controller.world)
@@ -79,10 +80,9 @@ def show_room(controller):
 
 def say(controller, msg):
     timestamp = datetime.datetime.now().ctime()
-    controller.broadcast('[%s] %s %s, "%s"' % (timestamp,
-                                               controller.character.name,
-                                               sentence_type(msg),
-                                               punctuate(msg)),
+    controller.broadcast('%s %s, "%s"' % (controller.character.name,
+                                          sentence_type(msg),
+                                          punctuate(msg)),
                          protocol=controller)
         
 def emote(controller, emotion):
@@ -94,7 +94,14 @@ def move(controller, direction, what=None):
     pos = controller.character.position
     next = controller.world.next(pos, direction)
     if next:
+        
+        controller.broadcast(YELLOW_TXT("%s walks away %s.") % (controller.character.name,
+                                                                game.world.get_direction_name(direction)),
+                             protocol=controller, send2self=False)
         controller.character.position = next
+        controller.broadcast(YELLOW_TXT("%s arrives from the %s.") % (controller.character.name,
+                                                                      game.world.get_direction_name(direction, invert=True)),
+                             protocol=controller, send2self=False)
         return show_room(controller)    
 
 def sense(controller, method, what=None):

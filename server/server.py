@@ -3,6 +3,7 @@ from twisted.internet.protocol import Factory, Protocol
 from twisted.protocols.basic import LineReceiver
 from utils.util import punctuate
 from utils.util import sentence_type
+from configs.config import SCOPES
 
 import game.world
 from game.character import Character
@@ -12,10 +13,10 @@ class Repl(LineReceiver):
     """
     Read Evaluate Print Loop
     """
-    def __init__(self, characters, world):
+    def __init__(self, players, world):
         self.evaluator = Eval()
         self.world = world
-        self.characters = characters
+        self.players = players
         self.character = None
 
     def connectionMade(self):
@@ -23,8 +24,8 @@ class Repl(LineReceiver):
 
     def connectionLost(self, reason):
         if self.character and getattr(self.character, "name", None):
-            if self.characters.has_key(self.character.name):
-                del self.characters[self.character.name]
+            if self.players.has_key(self.character.name):
+                del self.players[self.character.name]
         
     def lineReceived(self, line):
         return self.read(line)
@@ -37,19 +38,20 @@ class Repl(LineReceiver):
         protocol = protocol if protocol else self
         protocol.sendLine("%s" % msg)
 
-    def broadcast(self, msg, protocol=None, send2self=True):
-        for name, protocol in self.characters.iteritems():
-            if not send2self and name == self.character.name:
+    def broadcast(self, msg, scope=SCOPES["room"], protocol=None, send2self=True):
+        for name, protocol in self.players.iteritems():
+            if name == self.character.name and not send2self:
                 continue
-            self.send(msg, protocol=protocol)
+            if scope(self, protocol):
+                self.send(msg, protocol=protocol)
 
 class ReplFactory(Factory):
     """
     This factory makes Read Evaluate Print Loops
     """
     def __init__(self):
-        self.characters = {}
+        self.players = {}
         self.world = game.world.Map(20) # 20 rooms
 
     def buildProtocol(self, addr):
-        return Repl(self.characters, self.world)
+        return Repl(self.players, self.world)

@@ -56,7 +56,7 @@ class Sentient(Entity):
         self.race = self.DEFAULT_RACE
         self.sex = self.DEFAULT_SEX
         self.inventory = Inventory()
-        self.position = 0
+        self.position = 1
         self.level = 1
         self.encumberance = 0
         self.hp = 0
