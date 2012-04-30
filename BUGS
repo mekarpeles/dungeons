@@ -1,0 +1,29 @@
+mek@nism:~/dungeons/dungeons$ python engine.py 4002
+0
+direction: e, opposite: w
+direction: sw, opposite: ne
+direction: ne, opposite: sw
+direction: n, opposite: s
+direction: s, opposite: n
+direction: w, opposite: e
+direction: se, opposite: nw
+direction: nw, opposite: se
+1
+Traceback (most recent call last):
+  File "engine.py", line 30, in <module>
+    run()
+  File "engine.py", line 24, in run
+    reactor.listenTCP(PORT, ReplFactory())
+  File "/home/mek/dungeons/dungeons/server/server.py", line 54, in __init__
+    self.world = game.world.Map(20) # 20 rooms
+  File "/home/mek/dungeons/dungeons/game/world.py", line 85, in __init__
+    self.generate_map(rooms)
+  File "/home/mek/dungeons/dungeons/game/world.py", line 125, in generate_map
+    directions = self.generate_exits(ignore_exits=room.exits) # ["n", "e"]
+  File "/home/mek/dungeons/dungeons/game/world.py", line 171, in generate_exits
+    room_exits = random.randint(min_exits, possible_exits)
+  File "/usr/lib/python2.6/random.py", line 228, in randint
+    return self.randrange(a, b+1)
+  File "/usr/lib/python2.6/random.py", line 204, in randrange
+    raise ValueError, "empty range for randrange() (%d,%d, %d)" % (istart, istop, width)
+ValueError: empty range for randrange() (1,1, 0)
