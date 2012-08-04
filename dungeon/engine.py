@@ -18,7 +18,7 @@ from configs.config import PORT
 from configs.config import HOST
 
 def run():
-    """Entry function for Dungeons.
+    """Entry function for Dungeon
     $ python engine.py <port>
     """
     reactor.listenTCP(PORT, ReplFactory())

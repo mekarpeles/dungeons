@@ -27,13 +27,15 @@ def numeric_to_cardinal(index):
     """Converts/maps numeric representations of directions into their
     string literals, e.g. "n" return Room.DIRECTIONS[index]
     """
+    pass
 
 def opposite_cardinal(cardinal):
     """Given a cardinal direction, returns the opposite cardinal
     direction, e.g. given "n", returns "s"
     """
     index = cardinal_to_numeric(cardinal)
-    opposite = numeric_to_cardinal(index + 4) if index in range(3) else numeric_to_cardinal(index - 4)
+    opposite = numeric_to_cardinal(index + 4) if index in range(3) \
+        else numeric_to_cardinal(index - 4)
     return opposite
 
 def get_direction_name(direction, invert=False):
@@ -54,26 +56,38 @@ class Room(Entity):
     ENTRY_ID = 0
     DIRECTIONS = ["n", "ne", "e", "se",
                   "s", "sw", "w", "nw"]
-    DIRECTION_NAMES = dict(zip(DIRECTIONS, ["north", "northeast", "east", "southeast",
-                                            "south", "southwest", "west", "northwest"]))
+    DIRECTION_NAMES = \
+        dict(zip(DIRECTIONS, ["north", "northeast", "east", "southeast",
+                              "south", "southwest", "west", "northwest"]))
     CARDINAL_DIRECTIONS = dict(zip(DIRECTIONS,range(len(DIRECTIONS))))
     DEFAULT_EXITS = dict(zip(DIRECTIONS,[None]*len(DIRECTIONS)))
 
     # Default descriptors should be moved 
-    DEFAULT_DESC = ("The cavern is pitch black; almost super naturally so. "
-                    "The darkness seems to swallow all light, making it difficult to navigate.")
-    DEFAULT_SMELL = random.choice(["a stench of what can only be a thousand infected and rotting corpses",
-                                   "sweet lilac"
-                                  ])
-    DEFAULT_TASTE = random.choice(["salt in the air; there is not much moisture",
-                                   "ozone and crisp air"
-                                  ])
-    DEFAULT_TEXTURE = random.choice(["coarse, porous rock along the walls and slippery, calcified limestone coating the cavern floor",
-                                     "cold, wet water running down the walls, collecting in a shallow pool along the floor",
+    DEFAULT_DESC = \
+        "The cavern is pitch black; almost super naturally so. " \
+        "The darkness seems to swallow all light, making it " \
+        "difficult to navigate."
+    DEFAULT_SMELL = \
+        random.choice(["a stench of what can only be a thousand infected "
+                       "and rotting corpses",
+                       "sweet lilac"
+                       ])
+    DEFAULT_TASTE = \
+        random.choice(["salt in the air; there is not much moisture",
+                       "ozone and crisp air"
+                       ])
+    DEFAULT_TEXTURE = \
+        random.choice(["coarse, porous rock along the walls and slippery, " \
+                       "calcified limestone coating the cavern floor",
+                       "cold, wet water running down the walls, collecting in " \
+                       "a shallow pool along the floor",
                                     ])
-    DEFAULT_SOUND = random.choice(["echoes of thick, hairly insect legs scuttling across the floor in the distance",
-                                   "water dripping intermittently from the ceiling; the drip of water is all that breaks the silence"
-                                  ])
+    DEFAULT_SOUND = \
+        random.choice(["echoes of thick, hairly insect legs scuttling across " \
+                           "the floor in the distance",
+                       "water dripping intermittently from the ceiling; the " \
+                           "drip of water is all that breaks the silence"
+                       ])
     ALTITUDES = range(5) # TBD
     TERRAIN = range(5) # TBD
     
@@ -147,7 +161,7 @@ class Map(object):
         - Rooms should have a bidirectional rel, moving 'e' then 'w'
           should bring you back to prev room
         """
-        rs = range(rooms)
+        rs = range(rooms) # number of rooms
         self._add_rooms(rs)
 
         # Create exits dict for each room
@@ -155,17 +169,18 @@ class Map(object):
             # every time we make a connection/exit, the linked room
             # should lead back to prev room generate_exits should
             # ignore any existing exits for this room
-            room = self.rooms[room_id]
+            room = self.rooms[room_id] 
             directions = self.generate_exits(ignore_exits=room.exits) # ["n", "e"]
             open_rooms = [v for k,v in self.rooms.items() if not k == room_id]
 
             exits = dict(self.generate_edges(room, directions, open_rooms))
+            print exits
             self.rooms[room_id].exits = exits
 
             for direction, open_room in exits.items():
                 room.exits[direction] = open_room
                 open_room.exits[opposite_cardinal(direction)] = self.rooms[room_id]
-
+            
         return self
 
     def generate_edges(self, room, directions, open_rooms):

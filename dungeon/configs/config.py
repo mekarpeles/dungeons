@@ -26,6 +26,7 @@ else:
 
 PORT = int(config.get("telnet", "port"))
 HOST = config.get("telnet", "host")
+DEBUG = bool(config.get("server", "debug"))
 DEBUG_MODE = bool(config.get("server", "debug"))
 
 SCOPES = {"room": lambda controller, protocol: controller.character.position == protocol.character.position,

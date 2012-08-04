@@ -19,7 +19,7 @@ class Repl(LineReceiver):
         self.players = players
         self.character = None
 
-    def connectionMade(self):
+    def connectionMade(self):             
         self.send("Please choose a character name:")
 
     def connectionLost(self, reason):

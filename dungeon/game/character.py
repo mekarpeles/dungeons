@@ -73,10 +73,6 @@ class Character(Sentient):
         self.guild = "immigrant"
         self.char_class = None
 
-    @classmethod
-    def is_character(cls, controller, name):
-        return name in controller.characters
-
     def get_room(self, world):
         return world.rooms[self.position]
 
@@ -85,3 +81,8 @@ class Character(Sentient):
 
     def her_or_his(self):
         return "his" if self.sex == "male" else "her"
+
+    @classmethod
+    def is_character(cls, controller, name):
+        return name in controller.characters
+
