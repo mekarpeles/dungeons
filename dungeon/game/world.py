@@ -95,7 +95,7 @@ class Room(Entity):
                  terrain=0, texture=DEFAULT_TEXTURE, altitude=0, smell=DEFAULT_SMELL,
                  taste=DEFAULT_TASTE, sound=DEFAULT_SOUND):
         self.object_type = "room"
-        self.room_id = room_id
+        self.id = room_id
         self.exits = exits        
         self.description = desc
         self.terrain = self.TERRAIN[terrain]
@@ -106,7 +106,7 @@ class Room(Entity):
         self.taste = taste
         self.occupants = {}
         self.items = []
-        self.name = "Room %s" % room_id
+        self.name = "Room %s" % self.id
 
     def get_exits(self):
         xits = filter(lambda key: self.exits[key], self.exits.keys())
@@ -119,15 +119,16 @@ class Room(Entity):
 class Map(object):
 
     def __init__(self, rooms=random.randint(5,20)):
-        self.rooms = {}
-        self.generate_map(rooms)
+        
+        self.rooms = self._connect_rooms(dict([(room_id, Room(room_id)) \
+                                                   for room_id in range(rooms)]))
 
     def next(self, room_id, direction):
         """Returns the next room in the map"""
         if room_id in self.rooms:
             room = self.rooms[room_id]
             if room.exits and direction in room.exits:
-                return room.exits[direction].room_id
+                return room.exits[direction].id
         return None
 
     def occupants(self, controller):
@@ -135,57 +136,38 @@ class Map(object):
         in the room.
         """
         protocols = controller.players.values()
-        occupants = [protocol.character for protocol in protocols if protocol.character.position == controller.character.position]
+        occupants = [protocol.character for protocol in protocols if \
+                         protocol.character.position == \
+                         controller.character.position]
         return occupants
 
-    def _add_rooms(self, rs):
-        """Create empty rooms and add them to the class member dict
-        self.rooms
-        """
-        for room_id in rs:
-            self.rooms[room_id] = Room(room_id)
-
-    def generate_map(self, rooms):
-        """Generate 'n' nodes, make 'e' edges
-
-        XXX This needs to be refactored into something more manageable
-        and needs test cases
-
-        BUG:
-        See BUG file, in some cases random.randint() is generating an
+    def _connect_rooms(self, rooms):
+        """Generates bi-directional edges between self.rooms
+        BUG: See BUG file, in some cases random.randint() is generating an
         invalid range
 
         NOTES:
-        - Multiple rooms can connect to the same room
-        -- These connections must be through different exits
-        - Rooms should have a bidirectional rel, moving 'e' then 'w'
+        - Multiple Rooms can connect to the same Room via different exits
+        - Rooms should have a bidirectional edges, moving 'e' then 'w'
           should bring you back to prev room
         """
-        rs = range(rooms) # number of rooms
-        self._add_rooms(rs)
-
-        # Create exits dict for each room
-        for room_id in rs:
-            # every time we make a connection/exit, the linked room
-            # should lead back to prev room generate_exits should
-            # ignore any existing exits for this room
-            room = self.rooms[room_id] 
+        for rid, room in rooms.items():
             directions = self.generate_exits(ignore_exits=room.exits) # ["n", "e"]
-            open_rooms = [v for k,v in self.rooms.items() if not k == room_id]
+            open_rooms = [v for k,v in rooms.items() if not k == room.id]
 
             exits = dict(self.generate_edges(room, directions, open_rooms))
-            print exits
-            self.rooms[room_id].exits = exits
+            rooms[room.id].exits = exits
 
+            
             for direction, open_room in exits.items():
                 room.exits[direction] = open_room
-                open_room.exits[opposite_cardinal(direction)] = self.rooms[room_id]
-            
-        return self
+                open_room.exits[opposite_cardinal(direction)] = rooms[room.id]
+                
+        return rooms
 
     def generate_edges(self, room, directions, open_rooms):
         """Returns a list of (direction, room) tuples for compatible
-        candidates/matches where a match is defineds an open_room in
+        candidates/matches where a match is defined as an open_room in
         open_rooms and != room argument where direction not in
         open_room.exits
         """
@@ -199,8 +181,10 @@ class Map(object):
                     break        
         return edges
             
-    def generate_exits(self, directions=(Room.DIRECTIONS), min_exits=1, ignore_exits={}):
-        """NOTE: # Rooms must be greater than the number of exits - 8 (math desc. needed)
+    def generate_exits(self, directions=(Room.DIRECTIONS), min_exits=1,
+                       ignore_exits={}):
+        """NOTE: # Rooms must be greater than
+        the number of exits - 8 (math desc. needed)
 
         Determines the maximum number of exits, taking into
         consideration the number of rooms_remaining
