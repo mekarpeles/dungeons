@@ -26,7 +26,7 @@ class Client(LineReceiver):
         if self.character and getattr(self.character, "name", None):
             if self.players.has_key(self.character.name):
                 del self.players[self.character.name]
-            del self.character 
+            self.character = None
         
     def lineReceived(self, line):
         return self.read(line)
