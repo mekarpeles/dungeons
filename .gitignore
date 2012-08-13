@@ -4,3 +4,6 @@
 *.pyc
 network.cfg
 *.sw[a-z]
+dist
+MANIFEST
+static/*

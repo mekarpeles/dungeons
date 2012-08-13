@@ -9,10 +9,8 @@ import game.world
 from game.character import Character
 from game.evaluator import Eval
 
-class Repl(LineReceiver):
-    """
-    Read Evaluate Print Loop
-    """
+class Client(LineReceiver):
+
     def __init__(self, players, world):
         self.evaluator = Eval()
         self.world = world
@@ -20,12 +18,16 @@ class Repl(LineReceiver):
         self.character = None
 
     def connectionMade(self):             
-        self.send("Please choose a character name:")
+        return self.evaluator.initialize()
 
     def connectionLost(self, reason):
+        """
+        
+        """
         if self.character and getattr(self.character, "name", None):
             if self.players.has_key(self.character.name):
                 del self.players[self.character.name]
+            del self.character 
         
     def lineReceived(self, line):
         return self.read(line)
@@ -40,18 +42,17 @@ class Repl(LineReceiver):
 
     def broadcast(self, msg, scope=SCOPES["room"], protocol=None, send2self=True):
         for name, protocol in self.players.iteritems():
-            if name == self.character.name and not send2self:
+            if not send2self and name == self.character.name.lower():
                 continue
             if scope(self, protocol):
                 self.send(msg, protocol=protocol)
 
-class ReplFactory(Factory):
-    """
-    This factory makes Read Evaluate Print Loops
-    """
-    def __init__(self):
-        self.players = {}
-        self.world = game.world.Map(20) # 20 rooms
+class Server(Factory):
+    """This factory makes Read Evaluate Print Loops"""
+    def __init__(self, ctx=None):
+        self.clients = {}
+        self.ctx = game.world.Map(loadfile=world) \
+            if ctx else game.world.Map(20)
 
     def buildProtocol(self, addr):
-        return Repl(self.players, self.world)
+        return Client(self.clients, self.ctx)

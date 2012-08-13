@@ -13,17 +13,22 @@ from configs.formatting import *
 from game.world import get_direction_name
 from game.commands.actions import l
 
-def move(controller, direction=None, what=None):
+def move(controller, direction, what=None):
     """Moves an object from one position to another"""
+    # XXX Player shouldn't see his own movements
     pos = controller.character.position
     pos2 = controller.world.next(pos, direction)
+    print pos, pos2, direction
     if pos2:
         controller.broadcast(
-            YELLOW_TXT("{} walks away {}.".format(
+            YELLOW_TXT("\n{} walks away {}.".format(
                     controller.character.name,
                     get_direction_name(direction))),
             protocol=controller, send2self=False)
+
+        # Change position
         controller.character.position = pos2
+
         controller.broadcast(
             YELLOW_TXT("{} arrives from the {}.".format(
                     controller.character.name,

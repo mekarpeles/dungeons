@@ -12,19 +12,24 @@
 
 from reloader import PeriodicReloader
 from twisted.internet import reactor
-from server.server import ReplFactory
+from server.server import Server
 from configs.config import DEBUG_MODE
 from configs.config import PORT
 from configs.config import HOST
 
-def run():
+def run(ctx=None):
     """Entry function for Dungeon
     $ python engine.py <port>
     """
-    reactor.listenTCP(PORT, ReplFactory())
+    reactor.listenTCP(PORT, Server(ctx))
     reactor.run()
 
 if __name__ == "__main__":
+    import os, json
+    #world should be a cli arg
+    m = os.getcwd() + "/static/maps/nw"    
+    world = json.loads(open(m, 'r').read())
+
     if DEBUG_MODE:
         PeriodicReloader()
-    run()
+    run(world)

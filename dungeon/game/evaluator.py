@@ -11,10 +11,16 @@
 from game.commands.menu import CMDS, login
 from game.character import Character
 
+# Move to configs
+WELCOME_MSG = "Please choose a character name:"
+
 class Eval(object):
 
     def __init__(self, cmds=CMDS):
         self.cmds = cmds
+
+    def initialize(self, controller):
+        controller.send(WELCOME_MSG)
 
     def evaluate(self, controller, msg):
         """Evaluate the client's commands"""

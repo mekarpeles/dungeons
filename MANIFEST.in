@@ -1,0 +1,6 @@
+include *.txt
+recursive-include docs *.txt
+
+install_requires = [
+    'twisted'		 
+]

@@ -1,0 +1,21 @@
+[{"id": 0,
+  "name": "The Great Way",
+  "desc": "You are at the south end of The Great Way. Red cobblestones mark the pathway underfoot. This part of the small city of Gahlen is home to several interesting historical buildings. South of you is the Ambassador's office. To the west is the Immigrants Guild.\nOn the side of the street a latern hangs from a tall pole.",
+  "exits": [["w", 0], ["n", 1], ["s", 0]]
+ },
+ {"id": 1,
+  "name": "The Great Way",
+  "desc": "This Greay Way is the oldest street in Gahlen. It is fairly clean and designed with red cobblestones brought from the Dwarves of the Eastern Peaks. Directorly east is an ancient building of strange design. The single door to this building is jet black in color and the walls are made of a grey substance that does not appear to be stone.",
+  "exits": [["n", 3], ["s", 0], ["e", 2]]
+ },
+ {"id": 2,
+  "name": "Customs - OOC",
+  "desc": "You stand in the middle of a carpeted room. The walls are of a modern design and painted an off white. The door to the west is jet black and shimmers with strange metallic shine. Several sofas and large cushioned chairs are placed throughout the room. You have the feeling that this is a room where many come to converse about mundane topics. A hallway to the east leads to a lobby with private offices. Upstairs is a lounge.",
+  "exits": [["w", 1]]
+ },
+ {"id": 3,
+  "name": "The Great Way",
+  "desc": "Great Way is the oldest street in Gahlen. It is fairly clean and designed with red cobblestones brought from the Dwarves of the Eastern Peaks. This street is home to several interesting historical buildings. A huge structure built of limestone stands to the west. A massive Gold Embossment on the entranceway reads: The Great Hall of Fame",
+  "exits": [["s", 1]]
+ }
+]

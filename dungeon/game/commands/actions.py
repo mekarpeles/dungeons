@@ -32,11 +32,12 @@ def l(controller):
     controller.sendLine("\n{}".format(BLUE_TXT(room.name)))
     controller.sendLine(room.description)
     controller.sendLine("{} {}".format(
-            YELLOW_TXT("occupants:"),
-            ", ".join([c.name for c in controller.world.occupants(controller)])))
-    controller.sendLine("{} {}".format(
             LIGHTBLUE_TXT("exits:"),
             controller.character.get_room(controller.world).get_exits()))
+    controller.sendLine(YELLOW_TXT("\noccupants:"))
+    occupants = ["{} named {}\n".format(c.race, c.name) \
+                     for c in controller.world.occupants(controller)]
+    controller.sendLine("\r".join(occupants))
 
 def inventory(controller):
     """Lists the user's inventory. Use kwargs to determine if
