@@ -18,11 +18,10 @@ class Client(LineReceiver):
         self.character = None
 
     def connectionMade(self):             
-        return self.evaluator.initialize()
+        return self.evaluator.initialize(self)
 
     def connectionLost(self, reason):
         """
-        
         """
         if self.character and getattr(self.character, "name", None):
             if self.players.has_key(self.character.name):
