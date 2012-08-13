@@ -51,7 +51,7 @@ class Server(Factory):
     """This factory makes Read Evaluate Print Loops"""
     def __init__(self, ctx=None):
         self.clients = {}
-        self.ctx = game.world.Map(loadfile=world) \
+        self.ctx = game.world.Map(loadfile=ctx) \
             if ctx else game.world.Map(20)
 
     def buildProtocol(self, addr):
