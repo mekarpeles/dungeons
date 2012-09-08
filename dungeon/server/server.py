@@ -17,23 +17,29 @@ class Client(LineReceiver):
         self.players = players
         self.character = None
 
-    def connectionMade(self):             
+    def purge_connection(self):
+        if getattr(self, 'character', None):
+            del self.players[self.character.name.lower()]
+            self.character = None
+
+    def connectionMade(self):
+        self.purge_connection()
         return self.evaluator.initialize(self)
 
     def connectionLost(self, reason):
         """
+        XXX This really needs to do magic with the Server
+        use self.server.remove_client()
         """
-        if self.character and getattr(self.character, "name", None):
-            if self.players.has_key(self.character.name):
-                del self.players[self.character.name]
-            self.character = None
+        self.purge_connection()
+        self.transport.loseConnection()
         
     def lineReceived(self, line):
-        return self.read(line)
-
-    def read(self, line):
         if line:
+            #try:
             return self.evaluator.evaluate(self, line)
+            #except:
+            #    self.transport.loseConnection()
             
     def send(self, msg, protocol=None):        
         protocol = protocol if protocol else self
@@ -55,3 +61,4 @@ class Server(Factory):
 
     def buildProtocol(self, addr):
         return Client(self.clients, self.ctx)
+

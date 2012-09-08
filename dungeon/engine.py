@@ -27,7 +27,7 @@ def run(ctx=None):
 if __name__ == "__main__":
     import os, json
     #world should be a cli arg
-    m = os.getcwd() + "/static/maps/nw"    
+    m = os.getcwd() + "/static/maps/galaxia"
     world = json.loads(open(m, 'r').read())
 
     if DEBUG_MODE:
