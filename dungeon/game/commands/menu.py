@@ -9,7 +9,9 @@
     :license: BSD, see LICENSE for more details.
 """
 
+from configs.formatting import *
 from game.character import Character
+from game.items import Item
 from game.world import Room
 from game.commands import senses, communication, movement, \
     actions, channels
@@ -43,13 +45,19 @@ def login(controller, name):
     the future, this will support character accounts and will have to
     validate against a password if the user has a profile within some db
     """
+    name = name.strip().lower()
     if not controller.players.has_key(name):
-        controller.character = Character(name)
+        controller.character = Character(name.lower())
         controller.players[name] = controller
+        controller.character.inventory.add(Item(0, 'Random robes'))
+        controller.character.inventory.add(Item(1, 'staff'))
         controller.send("You are now known as %s" % name)
+        controller.broadcast("\n{} appears from somewhere or " \
+                                 "another looking somewhat " \
+                                 "dazed and disoriented.".format(YELLOW_TXT(name)),
+                             protocol=controller, send2self=False)
         actions.l(controller)
     else:
-        controller.send("Name taken, please choose another name. "
-                        "The following names are also taken: "
-                        "\n{}".format(", ".join(controller.players)))
+        controller.send("\nSorry, the name {} is already in use. " \
+                            "Please choose another name. ".format(name))
 

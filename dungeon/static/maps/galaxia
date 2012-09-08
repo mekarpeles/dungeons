@@ -1,0 +1,19 @@
+[{"id": 2,
+  "name": "Galaxia Cargo Bay",
+  "desc": "You hear thousands of pounds of metal scrape together as an enormous door slides open before you, leading you into an air-tight containment chamber covered with cautionary yellow stripes. Through a thick glass window, you see the inside deck of Galaxia's interspacial cargo bay, home to thousands of spaceships of various shapes and sizes. Just past the landing pads you see aircrafts travel through a thin, purpley membrane, through the space station's hatch into deep outerspace. Red light flashing on a computer monitor alerts you that your equipment is inadequate to proceed thpast the air-tight containment area.",
+  "exits": [["n", 1]]
+ },
+ {"id": 1,
+  "name": "Galaxia Portal",
+  "desc": "Interwoven panels of metal flooring gleam and shimmer beneath the sparadic, pulsing glow of flourescent lighting above. Humanoids shuffle briskly past you in all directions, paying little notice as they busy themselves with their daily asks. An enormous metal door with sophisticated circuitry slides open and closed, serving as an exit to the south.",
+  "exits": [["n", 3], ["s", 2]]
+ },
+ {"id": 3,
+  "name": "Galaxia Way",
+  "desc": "Sounds of battle carry down the hall from north, you better stay the fuck where you are, jesus.",
+  "exits": [["s", 1]]
+ }
+]
+ 
+  
+  

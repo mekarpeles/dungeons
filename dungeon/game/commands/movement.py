@@ -12,6 +12,7 @@
 from configs.formatting import *
 from game.world import get_direction_name
 from game.commands.actions import l
+from game.commands import common
 
 def move(controller, direction, what=None):
     """Moves an object from one position to another"""
@@ -34,5 +35,8 @@ def move(controller, direction, what=None):
                     controller.character.name,
                     get_direction_name(direction, invert=True))),
             protocol=controller, send2self=False)
-        return l(controller)
+
+        # When a person enters your room, list updated occupants
+        common.list_occupants(controller, broadcast=True)
+        l(controller) # Performs 'look' on client
 

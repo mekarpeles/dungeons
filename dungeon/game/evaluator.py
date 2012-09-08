@@ -26,7 +26,7 @@ class Eval(object):
         """Evaluate the client's commands"""
         if not msg.isspace():
             if not controller.character:
-                login(controller, msg)
+                login(controller, msg)                
             else:
                 try:
                     opt, rest = msg.split(" ", 1)

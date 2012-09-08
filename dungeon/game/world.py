@@ -155,7 +155,7 @@ class Map(object):
         for r in rooms:
             if not r['id'] in loaded_rooms.keys():
                 loaded_rooms[r['id']] = Room(r['id'], desc=str(r['desc']),
-                                             name="{}: {}".format(r['id'], r['name']))
+                                             name="{}".format(r['name']))
 
         # build exits now that we're guaranteed to have all rooms
         for r in rooms:

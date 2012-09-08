@@ -1,29 +1,22 @@
 from game.core import Entity
+from game.items import Item
 
 class Inventory(object):
     
-    def __init__(self):
-        self.capacity = 20
-        self.inventory = {}
-        self.clothing = []
-        self.coins = []
-        self.weapons = []
-        self.armor = []
+    def __init__(self, *args, **kwargs):
+        self.capacity = kwargs.get('capacity', 20)
+        self.items = {}
+        self.load(*args)
 
-    @classmethod
-    def add_item(cls, container, item):
-        """
-        Containers can have an inventory, a container could be
-        something like a treasure chest or it could be like a
-        Character
-        """
-        pass
+    def load(self, *items):
+        for item in items:
+            self.items[item.id] = item
 
-    def insert(self, item):
+    def add(self, item):
         """
         Insert based on Entity.entity_id?
         """
-        pass
+        self.items[item.id] = item        
 
     def remove(self, item):
         """
@@ -31,7 +24,7 @@ class Inventory(object):
         """
         pass
 
-    def show_inventory(self):
+    def show(self):
         pass
 
     def show_coins(self):
@@ -72,6 +65,7 @@ class Character(Sentient):
         self.skills = []
         self.guild = "immigrant"
         self.char_class = None
+        self.inventory = Inventory()
 
     def get_room(self, world):
         return world.rooms[self.position]

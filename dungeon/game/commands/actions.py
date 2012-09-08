@@ -10,9 +10,9 @@
 """
 
 from configs.formatting import *
+from game.commands import common
 
-
-OBSERVE = ['l', 'inventory']
+OBSERVE = ['l', 'inventory', 'i', 'who']
 ACTIONS = ['get', 'show']
 
 def action(controller, opt, args):
@@ -33,20 +33,27 @@ def l(controller):
     controller.sendLine(room.description)
     controller.sendLine("{} {}".format(
             LIGHTBLUE_TXT("exits:"),
-            controller.character.get_room(controller.world).get_exits()))
-    controller.sendLine(YELLOW_TXT("\noccupants:"))
-    occupants = ["{} named {}\n".format(c.race, c.name) \
-                     for c in controller.world.occupants(controller)]
-    controller.sendLine("\r".join(occupants))
+            controller.character.get_room(controller.world).get_exits()))    
+    common.list_occupants(controller)
+
+def i(controller):
+    return inventory(controller)
 
 def inventory(controller):
     """Lists the user's inventory. Use kwargs to determine if
     inventory or items should be shown to others"""
-    pass
+    controller.sendLine("\n")
+    controller.sendLine("Inventory:")
+    controller.sendLine("==========")
+    for index, item in controller.character.inventory.items.items():
+        controller.sendLine("{}: {}".format(index, item.name))
 
 def get(controller, args):
     """Potentially want to check for quantity + descriptors within the kwargs"""
     pass
+
+def who(controller):
+    common.who(controller)
 
 def show(controller, args):
     """Show an item or object to another player"""
