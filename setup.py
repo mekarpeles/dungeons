@@ -20,7 +20,11 @@ setup(
     author_email='michael.karpeles@gmail.com',
     packages=[
         'dungeon',
-        'test',
+        'dungeon/test',
+        'dungeon/game',
+        'dungeon/configs',
+        'dungeon/server',
+        'dungeon/utils',
         ],
     platforms='any',
     license='LICENSE',
