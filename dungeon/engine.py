@@ -12,21 +12,20 @@
 
 from reloader import PeriodicReloader
 from twisted.internet import reactor
-from server.server import Server
+from server.server import Server as GameServer
 from configs.config import DEBUG_MODE
 from configs.config import PORT
 from configs.config import HOST
+import os, json
 
-def run(ctx=None):
+def run(world=None):
     """Entry function for Dungeon
     $ python engine.py <port>
     """
-    reactor.listenTCP(PORT, Server(ctx))
+    reactor.listenTCP(PORT, GameServer(world))
     reactor.run()
 
 if __name__ == "__main__":
-    import os, json
-    #world should be a cli arg
     m = os.getcwd() + "/static/maps/galaxia"
     world = json.loads(open(m, 'r').read())
 
